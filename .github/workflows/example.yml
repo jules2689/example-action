@@ -1,0 +1,32 @@
+name: Example
+
+on: push
+
+jobs:
+  if:
+    runs-on: ubuntu-latest
+    steps:
+     - uses: actions/checkout@v2
+       with:
+         fetch-depth: 0 
+     - name: Get changed files
+        id: changed-files
+        uses: tj-actions/changed-files@v10.1
+     - name: Check all modified files
+       run: |
+          success=true
+          for file in ${{ steps.changed-files.outputs.all_modified_files }}; do
+            if [[ $file != edit/** ]]; then
+              echo "::error::$file was edited, but should have been put in `edit` folder"
+              success=false
+            else
+              echo "$file is ok"
+            fi
+          done
+          
+          if [ "$success" = true ] ; then
+            exit 0
+          else
+            echo "There were failures. See above"
+            exit 1
+          fi
